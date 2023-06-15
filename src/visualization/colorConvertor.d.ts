@@ -1,0 +1,1 @@
+export function okhsl_to_srgb(h:number, s:number, l:number): [number, number, number]
