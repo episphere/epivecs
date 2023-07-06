@@ -7,6 +7,7 @@ import { State } from './State.js'
 import { createDashboard } from './dashboard.js'
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
 
+const BASE_URL = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
 
 const PROCESSING_MAPS = {
   missingMode: new Map([
@@ -472,12 +473,12 @@ function rowDataToVectorFormat(rowData, xField, yField, zField) {
 
 async function loadDefaultData() {
   const spatialZip = new jszip()
-  const spatialData = await (await fetch(`${location.origin}/data/example_spatial_data.zip`)).blob()
+  const spatialData = await (await fetch(`${BASE_URL}/data/example_spatial_data.zip`)).blob()
   await spatialZip.loadAsync(spatialData)
   global.spatialDataZip = spatialZip 
 
   const vectorZip = new jszip()
-  const vectorData = await (await fetch(`${location.origin}/data/example_vector_data.zip`)).blob()
+  const vectorData = await (await fetch(`${BASE_URL}/data/example_vector_data.zip`)).blob()
   await vectorZip.loadAsync(vectorData)
 
   const map = new Map([["county", []], ["state", []]])
