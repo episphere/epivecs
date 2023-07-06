@@ -1,0 +1,19 @@
+#tooltip {
+  background: #FFF;
+  font-family: sans-serif;
+  padding: 8px 8px;
+  font-size: 14px;
+  border-radius: 2px;
+  display: none;
+  max-width: 200px;
+  box-shadow: 1px 1px 5px grey;
+  z-index: 300;
+}
+
+#tooltip[data-show] {
+  display: block;
+}
+
+label:hover {
+  color: slategrey;
+}

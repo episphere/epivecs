@@ -1,1 +1,151 @@
-<script src="index.js" type="module"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EpiVECS</title>
+    <link rel="icon" href="images/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="main-container" class="container my-4">
+      <div class="d-flex align-items-center"> 
+        <img src="/images/favicon.ico" style="margin-right: 20px" alt="logo" width="50" height="50">
+        <h1 class="mb-0">EpiVECS</h1>
+        <div class="d-flex align-items-center" style="gap: 6px; margin-left: 20px">
+          [<a href="https://github.com/episphere/EpiVECS">code</a>]
+         [notebook]
+         [preprint]
+        </div>
+        
+      </div>
+      
+      
+      <!-- Data configuration dropdown -->
+      <div class="accordion mt-3" id="data-config-acc">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="data-config-heading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#data-config-collapse" aria-expanded="true" aria-controls="data-config-collapse">
+              <span class="fw-bold">Data Configuration</span>
+            </button>
+          </h2>
+
+          <div id="data-config-collapse" class="accordion-collapse collapse" aria-labelledby="data-config-heading" data-bs-parent="#data-config-acc">
+            <div class="accordion-body">
+              <div class="container mx-0 my-3">
+                <div class="row">
+                  <div class="col-md-4">
+                    <label id="spatial-data-label">Spatial Data (GeoJSON) <span class="glyphicon glyphicon-info-sign">: </label>
+                  </div>
+                  <div class="col-md-4">
+                    <input id="spatial-file-upload" type="file" class="form-control" id="customFile" multiple />
+                  </div>
+                  <div class="col-md-4">
+                    <select id="spatial-data-select" class="form-select"></select>
+                  </div>
+                </div>
+                <div class="row my-2">
+                  <div class="col-md-4">
+                    <label id="vector-data-label">Vector Data (JSON, CSV): </label>
+                  </div>
+                  <div class="col-md-4">
+                    <input id="vector-file-upload" type="file" class="form-control" id="customFile" />
+                  </div>
+                  <div class="col-md-4">
+                    <select id="vector-data-select" class="form-select"></select>
+                  </div>
+                </div>
+                <div class="row my-2 ps-5">
+                  <div class="col-md-4">
+                    <label id="spatial-id-label">Spatial ID Field: </label>
+                  </div>
+                  <div class="col-md-4">
+                    <select id="spatial-field-select" class="form-select" disabled></select>
+                  </div>
+                </div>
+              
+                <div class="row my-2 ps-5">
+                  <div class="col-md-4">
+                    <label id="x-field-label">x Field: </label>
+                  </div>
+                  <div class="col-md-4">
+                    <select id="x-field-select"  class="form-select" disabled></select>
+                  </div>
+                </div>
+              
+                 <div class="row my-2 ps-5">
+                  <div class="col-md-4">
+                    <label id="y-field-label">y Field: </label>
+                  </div>
+                  <div class="col-md-4">
+                    <select id="y-field-select"  class="form-select" disabled></select>
+                  </div>
+                </div>
+              
+               <div class="row">
+                  <div class="col">
+                    <label id="missing-select-label" for="missing-select" class="form-label">Missing Data</label>
+                    <select id="missing-select" class="form-select"></select>
+                  </div>
+                  <div class="col">
+                    <label id="smooth-select-label" for="smooth-select" class="form-label">Smoothing</label>
+                    <select id="smooth-select" class="form-select"></select>
+                  </div>
+                  <div class="col">
+                    <label id="norm-select-label" for="norm-select" class="form-label">Normalization</label>
+                    <select id="norm-select" class="form-select"></select>
+                  </div>
+                 <div class="col">
+                    <label  id="method-select-label" for="method-select" class="form-label">Method</label>
+                    <select id="method-select" class="form-select"></select>
+                  </div>
+                 <div class="col">
+                    <label id="k-input-label" for="k-input" class="form-label">Num. Clusters</label>
+                    <input id="k-input" class="form-control w-75" type="number" min="1">
+                  </div>
+                </div>
+              
+                <div class="row mt-4">
+                  <div class="col-md-9">
+                    <span id="info-span">...</span>
+                  </div>
+                  <div class="col">
+                    <button id="run-button" type="button" class="btn btn-light w-100" >Run</button>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row my-4" id="plot-container"></div>
+
+      <div class="card p-3">
+        <div class="container mx-0">
+          <div class="row">
+            <div class="col-3">
+              <label id="color-select-label" for="color-select" class="form-label">Color Scheme</label>
+              <select id="color-select" class="form-select"></select>
+            </div>
+            <div class="col-3">
+              <label id="border-select-label" for="border-select" class="form-label">Draw Borders</label>
+              <select id="border-select" class="form-select"></select>
+            </div>
+            <div class="col-3">
+              <label id="x-date-select-label" for="x-date-select" class="form-label">x As Date</label>
+              <select id="x-date-select" class="form-select"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="tooltip" role="tooltip"></div>
+  </body>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <script src="src/visualization/tool.js" type="module"></script>
+</html>
+  
