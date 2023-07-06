@@ -472,12 +472,12 @@ function rowDataToVectorFormat(rowData, xField, yField, zField) {
 
 async function loadDefaultData() {
   const spatialZip = new jszip()
-  const spatialData = await (await fetch("/data/example_spatial_data.zip")).blob()
+  const spatialData = await (await fetch("../../data/example_spatial_data.zip")).blob()
   await spatialZip.loadAsync(spatialData)
   global.spatialDataZip = spatialZip 
 
   const vectorZip = new jszip()
-  const vectorData = await (await fetch("/data/example_vector_data.zip")).blob()
+  const vectorData = await (await fetch("../../data/example_vector_data.zip")).blob()
   await vectorZip.loadAsync(vectorData)
 
   const map = new Map([["county", []], ["state", []]])
