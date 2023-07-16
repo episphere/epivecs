@@ -8,12 +8,14 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
 
   options = {
     width: 1080,
+    layout: "a",
     colorScheme: "okhsl_flat",
     drawBorders: "on",
     lineXLabel: "x",
     lineYLabel: "y",
     lineXValues: Array.from({length: vectorData.xIndexes.length}, (_,i) => i),
     extraSpatialData: null,
+    topRowScale: .8,
     ...options, 
   }
   
@@ -59,7 +61,11 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
     return Math.sqrt(total);
   }
 
-  const center = [d3.mean(dotData, d => d[0]), d3.mean(dotData, d => d[1])]
+  //const center = [d3.mean(dotData, d => d[0]), d3.mean(dotData, d => d[1])]
+  // const xExtent = d3.extent(dotData, d => d[0])
+  // const yExtent = d3.extent(dotData, d => d[1])
+  // const center = [(xExtent[0] + xExtent[1])/2, (yExtent[0] + yExtent[1])/2]
+  const center = [0,0]
   const maxRadius = d3.max(dotData.map(p => euclidean(p, center)))
   const links = [
     {x1: center[0]-maxRadius, x2: center[0]+maxRadius, y1: center[1], y2: center[1]},
@@ -67,10 +73,10 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
   ]
   
   const scatterPlot = Plot.plot({
-    width: 480,
-    height: 480,
+    width: options.width/2 * options.topRowScale,
+    height: options.width/2 * options.topRowScale,
     axis: null,
-    margin: 80,
+    margin: 20,
     r: {range: [3,16]},
     marks: [
       Plot.dot(dotData, {
@@ -112,14 +118,14 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
       areaLinePoints.push({x: j, y: d, id: vectorData.zIndexes[i]})
     })
   })
-
-
    
   const linePlot = Plot.plot({
-    style: { fontSize: 14},
+    style: { fontSize: 12},
     marginLeft: 50,
     marginBottom: 50,
     marginTop: 50,
+    width: options.width * (3/4) * options.topRowScale,
+    height: options.width/2 * options.topRowScale,
     y: {domain: d3.extent(linePoints, d => d.y), tickSpacing: 50, label: options.lineYLabel},
     x: {label: options.lineXLabel},
     marks: [
@@ -228,18 +234,42 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
       previousSpecificSelect = select
     }
   })
-  
 
+  
   const div = document.createElement("div")
-  const divRow1 = div.appendChild( document.createElement("div"))
-  divRow1.style.display = "flex"
-  divRow1.style.justifyContent = "space-around"
-  divRow1.appendChild(scatterPlot)
-  divRow1.appendChild(linePlot)
-  const divRow2 = div.appendChild( document.createElement("div"))
-  divRow2.style.display = "flex"
-  divRow2.style.justifyContent = "space-around"
-  divRow2.appendChild(geoPlot)
+  div.style.justifyContent = "center"
+  if (options.layout == "a") {
+    const divRow1 = div.appendChild( document.createElement("div"))
+    divRow1.style.display = "flex"
+    divRow1.style.justifyContent = "center"
+    divRow1.style.gap = "20px"
+    divRow1.appendChild(scatterPlot)
+    divRow1.appendChild(linePlot)
+    const divRow2 = div.appendChild( document.createElement("div"))
+    divRow2.style.display = "flex"
+    divRow2.style.justifyContent = "space-around"
+    divRow2.appendChild(geoPlot)
+  } else {
+    div.style.display = "flex"
+
+    const divColMap = div.appendChild( document.createElement("div"))
+    divColMap.style.display = "flex"
+    divColMap.style.justifyContent = "center"
+    divColMap.appendChild(geoPlot)
+    
+    const divColOther = div.appendChild( document.createElement("div"))
+    divColOther.style.display = "flex"
+    divColOther.style.justifyContent = "center"
+    divColOther.style.alignItems = "center"
+    divColOther.style.gap = "20px"
+    divColOther.style.flexDirection = "column"
+    divColOther.appendChild(scatterPlot)
+    divColOther.appendChild(linePlot)
+  }
+ 
+
+
+
   
   return div
 }

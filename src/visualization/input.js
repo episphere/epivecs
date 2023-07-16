@@ -6,10 +6,7 @@ export function hookSelect(selector, state, stateDataProperty, stateValuePropert
   }
 
   function setOptions(options) {
-    if (selector == "#vector-data-select") {
-      console.log("options:",options)
-    }
-    
+
     const selectOptions = []
     select.innerHTML = ``
 

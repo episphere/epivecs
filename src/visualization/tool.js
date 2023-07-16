@@ -186,12 +186,18 @@ function resultCalculated() {
   if (global.state.result == null) {
     changeButtonMode("disabled")
   } else {
-    updateDashboard()
+    updateAndResizeDashboard()
     changeButtonMode("pointless")
   }
 }
 
-function updateDashboard() {
+function updateAndResizeDashboard() {
+  updateDashboard()
+  resizeDashboard()
+}
+
+const DEFAULT_SIZE = 1100
+function updateDashboard(width=DEFAULT_SIZE, layout="a") {
   global.plotContainer.innerHTML = ""
 
   const lineXValues = global.state.xDateValue == "on" ? 
@@ -201,7 +207,8 @@ function updateDashboard() {
   
   global.plotContainer.appendChild(
     createDashboard(global.state.spatialData, global.state.vectorData, global.state.result, {
-      width: 1100,
+      layout,
+      width: width,
       colorScheme: global.state.colorValue,
       drawBorders: global.state.borderValue,
       lineXLabel: global.state.xFieldValue,
@@ -210,6 +217,22 @@ function updateDashboard() {
       extraSpatialData: global.extraSpatialData
     })
   )
+}
+
+function resizeDashboard() {
+  const targetHeight = window.innerHeight * 0.8
+  const currentHeight =  global.plotContainer.getBoundingClientRect().height
+  const scaleFactor = targetHeight/currentHeight 
+
+  const currentWidth =  global.plotContainer.getBoundingClientRect().width 
+  const resizeWidth = scaleFactor * currentWidth 
+
+  let layout = "a"
+  if (DEFAULT_SIZE - resizeWidth > 250) {
+    layout = "b"
+  }
+
+  updateDashboard(DEFAULT_SIZE*scaleFactor,layout)
 }
 
 function changeButtonMode(mode) {
@@ -248,7 +271,7 @@ async function start() {
   global.state.addListener(changedVectorDataValue, "vectorDataValue")
   global.state.addListener(resultCalculated, "result"),
   global.state.addListener(dataUpdated, "spatialData", "vectorData")
-  global.state.addListener(updateDashboard, "borderValue", "colorValue", "xDateValue")
+  global.state.addListener(updateAndResizeDashboard, "borderValue", "colorValue", "xDateValue")
 
   document.getElementById("spatial-file-upload").addEventListener("change", uploadSpatialFile)
   document.getElementById("vector-file-upload").addEventListener("change", uploadVectorFile)

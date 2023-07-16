@@ -1,7 +1,10 @@
-import { mean, max } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm';
+import { max, extent } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm';
 import { okhsl_to_srgb } from "./colorConvertor.js";
 export function positionColorer(points, l = 0.5, colorSpace = "okhsl") {
-    const center = [mean(points, d => d[0]), mean(points, d => d[1])];
+    //const center = [mean(points, d => d[0])!, mean(points, d => d[1])!]
+    const xExtent = extent(points, d => d[0]);
+    const yExtent = extent(points, d => d[1]);
+    const center = [(xExtent[0] + xExtent[1]) / 2, (yExtent[0] + yExtent[1]) / 2];
     const distances = points.map(p => euclidean(p, center));
     const maxRadius = max(distances);
     const rScale = scaleLinear([0, maxRadius]);

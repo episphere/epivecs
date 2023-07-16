@@ -7,6 +7,7 @@
 import { SOM } from "./SOM.js"
 import { kmeans } from "https://cdn.jsdelivr.net/npm/ml-kmeans@6/+esm"
 import { pca, umap, tsne, sammon } from "./dimensionalityReduction.js"
+import { extent } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm'
 
 type Vector = number[]
 
@@ -43,22 +44,45 @@ export async function embeddedKmeans(vectors: Vector[], k: number,
 }
 
 export type ClusterEmbedMethod = "som" | "kmc+sammon" | "kmc+pca" | "kmc+umap" | "kmc+tsne"
-export async function clusterEmbed(vectors: Vector[], k: number, method: ClusterEmbedMethod): Promise<ClusterEmbedResult> {
+export async function clusterEmbed(vectors: Vector[], k: number, method: ClusterEmbedMethod, normalizeEmbedded=true): Promise<ClusterEmbedResult> {
 
+  let result = null
   if (method == "som") {
     const somShape = getClosestFactors(k)
-    return selfOrganizingMap(vectors, somShape[0], somShape[1])
+    result = await selfOrganizingMap(vectors, somShape[0], somShape[1])
   } else if (method == "kmc+pca") {
-    return embeddedKmeans(vectors, k, pca)
+    result = await embeddedKmeans(vectors, k, pca)
   }  else if (method == "kmc+umap") {
-    return embeddedKmeans(vectors, k, umap)
+    result = await embeddedKmeans(vectors, k, umap)
   } else if (method == "kmc+tsne") {
-    return embeddedKmeans(vectors, k, tsne)
+    result = await embeddedKmeans(vectors, k, tsne)
   } else if (method == "kmc+sammon") {
-    return embeddedKmeans(vectors, k, sammon)
+    result = await embeddedKmeans(vectors, k, sammon)
   } else {
     throw new Error("Invalid method " + method)
   }
+
+  if (normalizeEmbedded) {
+    const xExtent = extent(result.embeddedCentroids, d => d[0])
+    const yExtent = extent(result.embeddedCentroids, d => d[1])
+
+    if (xExtent[0] != null) {
+      const xCenter = (xExtent[0]+xExtent[1])/2
+      for (const centroid of result.embeddedCentroids) {
+        centroid[0] = (centroid[0] - xCenter)/(xExtent[1]-xExtent[0])
+      }
+    }
+
+    if (yExtent[0] != null) {
+      const yCenter = (yExtent[0]+yExtent[1])/2
+      for (const centroid of result.embeddedCentroids) {
+        centroid[1] = (centroid[1] - yCenter)/(yExtent[1]-yExtent[0])
+      }
+    }
+    
+  }
+
+  return result 
 }
 
 function getClosestFactors(number: number) {
