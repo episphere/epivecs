@@ -22,10 +22,14 @@ export function hookSelect(selector, state, stateDataProperty, stateValuePropert
         
         if (option.value == state[stateValueProperty]) {
           optionElement.selected = true
+          select.value = option.value
         }
         select.appendChild(optionElement)
       }
     }
+
+
+    
   }
 
   state.addListener(() => {
@@ -51,8 +55,13 @@ export function hookSelect(selector, state, stateDataProperty, stateValuePropert
 
   setOptions(state[stateDataProperty])
 
+  if (selector == "#spatial-data-select") {
+    console.log(selector, state[stateValueProperty])
+    console.log(" > ", select.value)
+  }
+  if (select.value != "") 
+    state[stateValueProperty] = select.value
   
-  state[stateValueProperty] = select.value
 }
 
 export function hookInput(selector, state, stateValueProperty) {

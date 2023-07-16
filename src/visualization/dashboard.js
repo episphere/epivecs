@@ -33,7 +33,7 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
   if (options.colorScheme == "okhsl_flat") {
     colorer = positionColorer(result.embeddedCentroids, [.7,.7])
   } else if (options.colorScheme == "okhsl_cone") {
-    colorer = positionColorer(result.embeddedCentroids, [.8,.4])
+    colorer = positionColorer(result.embeddedCentroids, [.8,.7])
   } else {
     colorer = positionColorer(result.embeddedCentroids, [.6,.6])
   }

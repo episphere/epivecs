@@ -51,6 +51,10 @@ const DICTIONARY = new Map([
   ["off", "Off"],
 ])
 
+const RUN_PARAMS = ["spatialDataValue", "vectorDataValue", "spatialFieldValue", "xFieldValue", "yFieldValue", 
+"missingValuesValue", "normValue", "smoothingValue", "methodValue", "kValue"]
+const OTHER_PARAMS = ["colorValue", "borderValue", "xDateValue"]
+
 const global = {}
 
 start()
@@ -253,6 +257,35 @@ function changeButtonMode(mode) {
   }
 }
 
+function useUrlParams() {
+  global.urlParams = new URLSearchParams(window.location.hash.replace("#", ""))
+
+  for (const property of [...RUN_PARAMS, ...OTHER_PARAMS]) {
+    if (global.urlParams.has(property)) {
+      global.state.defineProperty(property, global.urlParams.get(property))
+    }
+  }
+}
+
+function hookUrlParams() {
+  // Delay URL update until run
+  for (const property of RUN_PARAMS) {
+    global.state.addListener(() => {
+      global.urlParams.set(property, global.state[property])
+    }, property)
+  }
+
+  // Perform URL update immediately
+  for (const property of OTHER_PARAMS) {
+    global.state.addListener(() => {
+      global.urlParams.set(property, global.state[property])
+      window.location.hash = global.urlParams.toString()
+    }, property)
+  }
+}
+
+
+
 async function start() {
 
   populateTooltips()
@@ -263,6 +296,7 @@ async function start() {
   global.infoSpan = document.getElementById("info-span")
   global.state.defineProperty("result")
 
+  useUrlParams()
   await loadDefaultData()
 
   hookInputs()
@@ -287,6 +321,7 @@ async function start() {
   global.state.addOnceListener(() => {
     if (global.state.vectorData != null && global.state.spatialData != null) {
       run()
+      hookUrlParams() 
     }
   }, "spatialData", "vectorData")
 
@@ -299,11 +334,15 @@ async function start() {
 
   global.state.spatialDataOptions = ["counties.geojson", "states.geojson"]
 
-  // Shouldn't need to set this here when we fix input select default, but it's a bit tricky so leaving for now.
-  global.state.vectorDataValue = "county/cdc_covid_cases_county_week.json"
+  // Shouldn't need to set this here. The hookSelect() function is not set up well to handle default values. Fix later.
+  global.state.fireListeners("spatialDataValue")
+  global.state.fireListeners("vectorDataValue")
+
+  //global.state.vectorDataValue = "county/cdc_covid_cases_county_week.json"
 }
 
 async function run() {
+  window.location.hash = global.urlParams.toString()
   global.state.result = null   
 
   if ((global.state.vectorDataValue == "USER UPLOAD" && !global.userVectorData) ||

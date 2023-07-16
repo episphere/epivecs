@@ -63,30 +63,35 @@ export class State {
     }
   }
 
+  fireListeners(property) {
+    const value = this.properties[property]
+
+    const propertyListeners = this.listeners.get(property)
+    if (propertyListeners) {
+      for (const listener of propertyListeners) {
+        listener(property, value)
+      }
+    }
+
+    const propertyOnceListeners = this.onceListeners.get(property)
+    if (propertyOnceListeners) {
+      for (const listener of propertyOnceListeners) {
+        listener(property, value)
+      }
+
+      this.onceListeners.set(property, [])
+    }
+    
+    for (const listener of this.listeners.get("global")) {
+      listener(property, value)
+    }
+  }
+
   _setProperty(property, value) {
     
     if (value != this.properties[property]) {
        this.properties[property] = value
-
-      const propertyListeners = this.listeners.get(property)
-      if (propertyListeners) {
-        for (const listener of propertyListeners) {
-          listener(property, value)
-        }
-      }
-
-      const propertyOnceListeners = this.onceListeners.get(property)
-      if (propertyOnceListeners) {
-        for (const listener of propertyOnceListeners) {
-          listener(property, value)
-        }
-
-        this.onceListeners.set(property, [])
-      }
-      
-      for (const listener of this.listeners.get("global")) {
-        listener(property, value)
-      }
+       this.fireListeners(property)
     }
   }
     
