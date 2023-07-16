@@ -55,12 +55,10 @@ export function hookSelect(selector, state, stateDataProperty, stateValuePropert
 
   setOptions(state[stateDataProperty])
 
-  if (selector == "#spatial-data-select") {
-    console.log(selector, state[stateValueProperty])
-    console.log(" > ", select.value)
-  }
-  if (select.value != "") 
+
+  if (select.value != "") {
     state[stateValueProperty] = select.value
+  }
   
 }
 
