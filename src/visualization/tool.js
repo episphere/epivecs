@@ -6,6 +6,8 @@ import { hookSelect, hookInput } from "./input.js"
 import { State } from './State.js'
 import { createDashboard } from './dashboard.js'
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
+import { toPng } from 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/+esm'
+import download from 'https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/+esm'
 
 const BASE_URL = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
 
@@ -190,8 +192,18 @@ function resultCalculated() {
   if (global.state.result == null) {
     changeButtonMode("disabled")
   } else {
+    updateSpatialData()
     updateAndResizeDashboard()
     changeButtonMode("pointless")
+  }
+}
+
+function updateSpatialData() {
+  const assignmentMap = new Map(global.state.result.labels.map((label,i) => {
+    return [global.state.vectorData.zIndexes[i], label]
+  }))
+  for (const feature of global.state.spatialData.features) {
+    feature.properties.label_assignment = assignmentMap.get(feature.id)
   }
 }
 
@@ -287,6 +299,7 @@ function hookUrlParams() {
 
 
 async function start() {
+  toggleLoading(true)
 
   populateTooltips()
 
@@ -328,7 +341,7 @@ async function start() {
   
 
   global.runButton.addEventListener("click", () => {
-    global.plotContainer.innerHTML = `<div class="spinner-border m-5" role="status"></div>`
+    toggleLoading(true)
     setTimeout(() => run(), 50)
   })
 
@@ -339,6 +352,16 @@ async function start() {
   global.state.fireListeners("vectorDataValue")
 
   //global.state.vectorDataValue = "county/cdc_covid_cases_county_week.json"
+}
+
+function toggleLoading(loading) {
+  if (loading) {
+    document.getElementById("dash-container").classList.add("d-none")
+    document.getElementById("loading-spinner").classList.remove("d-none")
+  } else {
+    document.getElementById("dash-container").classList.remove("d-none")
+    document.getElementById("loading-spinner").classList.add("d-none")
+  }
 }
 
 async function run() {
@@ -360,11 +383,23 @@ async function run() {
 
   let processedVectors = [...global.state.vectorData.vectors]
   processedVectors = preprocess(processedVectors)
+
+  global.state.vectorData.zIndexesAll = [... global.state.vectorData.zIndexes]
+  global.state.vectorData.zIndexes = []
+
+  // Remove incomplete vectors
+  processedVectors = processedVectors.filter((vector,i) => {
+    const keep = vector.every(d => Number.isFinite(d))
+    if (keep) global.state.vectorData.zIndexes.push(global.state.vectorData.zIndexesAll[i])
+    return keep 
+  })
   global.state.vectorData.processedVectors = processedVectors
 
   clusterEmbed(processedVectors, parseInt(global.state.kValue), global.state.methodValue).then(result => {
     global.state.result = result
   })
+
+  toggleLoading(false)
 }
 
 function preprocess(vectors) {
@@ -373,9 +408,24 @@ function preprocess(vectors) {
   vectors = PROCESSING_MAPS.missingMode.get(global.state.missingValuesValue)(vectors)
   vectors = PROCESSING_MAPS.smoothingMode.get(global.state.smoothingValue)(vectors)
   vectors = PROCESSING_MAPS.normMode.get(global.state.normValue)(vectors)
-  vectors = vectors.filter(vector => vector.every(d => Number.isFinite(d)))
   
+
   return vectors
+}
+
+function downloadData(data, filename, format="json") {
+  const text = format == "csv" ? d3.csvFormat(data) : JSON.stringify(data) 
+
+  const blobFile = new Blob([text], {type: `text/${format};charset=utf-8`})
+  const blobUrl = URL.createObjectURL(blobFile)
+
+  const anchor = document.createElement('a')
+  anchor.href = blobUrl
+  anchor.target = "_blank"
+  anchor.download = `${filename}.${format}`
+  anchor.click()
+
+  URL.revokeObjectURL(blobUrl)
 }
 
 function uploadSpatialFile(e) {
@@ -459,7 +509,7 @@ function hookInputs() {
   global.state.defineProperty("yFieldOptions")
   global.state.defineProperty("yFieldValue")
   global.state.defineProperty("colorOptions", ["okhsl_flat", "okhsl_cone"])
-  global.state.defineProperty("colorValue")
+  global.state.defineProperty("colorValue", "okhsl_cone")
   global.state.defineProperty("borderOptions", ["on", "off"])
   global.state.defineProperty("borderValue")
   global.state.defineProperty("xDateOptions", ["on", "off"])
@@ -498,6 +548,57 @@ function hookInputs() {
   hookSelect("#color-select", global.state, "colorOptions", "colorValue", format)
   hookSelect("#border-select", global.state, "borderOptions", "borderValue", format)
   hookSelect("#x-date-select", global.state, "xDateOptions", "xDateValue", format)
+
+  document.getElementById("download-results-json").addEventListener("click", () => {
+    if (global.state.result) {
+      const downloadResult = {
+        centroids: global.state.result.centroids,
+        embeddedCentroids: global.state.result.embeddedCentroids,
+        assignments: global.state.result.labels.map((label,i) => {
+          return {id: global.state.vectorData.zIndexes[i], label}
+        })
+      }
+      downloadData(downloadResult, "epivecs_full_results", "json")
+    }
+  })
+
+  document.getElementById("download-results-csv").addEventListener("click", () => {
+    if (global.state.result) {
+      const assignments = global.state.result.labels.map((label,i) => {
+        return {id: global.state.vectorData.zIndexes[i], label}
+      })
+      downloadData(assignments, "epivecs_cluster_assignments", "csv")
+    }
+  })
+
+  document.getElementById("download-results-geojson").addEventListener("click", () => {
+    if (global.state.result) {
+      downloadData(global.state.spatialData, "epivecs_geo", "geojson")
+    }
+  })
+
+  let downloading = false
+  document.getElementById("download-plot-png").addEventListener("click", () => {
+    
+    if (!downloading) {
+      downloading = true
+      document.getElementById("button-download-svg").style.display = "none"
+      document.getElementById("download-spinner").style.display = "inline-block"
+
+
+      setTimeout(() => {
+        toPng(document.getElementById("plot-container"))
+          .then(function (dataUrl) {
+            download(dataUrl, "epivecs-plots.png")
+            downloading = false
+
+            document.getElementById("button-download-svg").style.display = "inline-block"
+            document.getElementById("download-spinner").style.display = "none"
+          })
+      }, 10)
+     
+    }
+  })
 }
 
 function rowDataToVectorFormat(rowData, xField, yField, zField) {
