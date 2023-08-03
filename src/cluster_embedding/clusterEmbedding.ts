@@ -5,9 +5,9 @@
  */
 
 import { SOM } from "./SOM.js"
-import { kmeans } from "https://cdn.jsdelivr.net/npm/ml-kmeans@6/+esm"
-import { pca, umap, tsne, sammon } from "./dimensionalityReduction.js"
-import { extent } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm'
+import { kmeans } from "ml-kmeans"
+import { pca, umap, sammon } from "./dimensionalityReduction.js"
+import { extent } from 'd3-array'
 
 type Vector = number[]
 
@@ -55,7 +55,8 @@ export async function clusterEmbed(vectors: Vector[], k: number, method: Cluster
   }  else if (method == "kmc+umap") {
     result = await embeddedKmeans(vectors, k, umap)
   } else if (method == "kmc+tsne") {
-    result = await embeddedKmeans(vectors, k, tsne)
+    //result = await embeddedKmeans(vectors, k, tsne)
+    throw new Error("t-SNE temporarily removed due to security vulnerability in npm package")
   } else if (method == "kmc+sammon") {
     result = await embeddedKmeans(vectors, k, sammon)
   } else {

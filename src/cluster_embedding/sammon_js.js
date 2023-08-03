@@ -1,7 +1,7 @@
 // Basic port of the 'sammon' Python library. It would be easy to make this more memory efficient.
 import { add, subtract, sum, multiply, reshape, transpose, flatten, abs, distance,
-  dotMultiply, dotDivide, dotPow, diag, ones, matrix, random} from 'https://cdn.jsdelivr.net/npm/mathjs@11.8.0/+esm'
-import { pca } from "./dimensionalityReduction.js"
+  dotMultiply, dotDivide, dotPow, diag, ones, matrix, random} from 'mathjs'
+import * as PCA from 'pca-js'
 
 const math = {
   add, subtract, sum, multiply, reshape, transpose, flatten, abs, distance,
@@ -97,6 +97,16 @@ export function sammon(X, n, args={}) {
   E = E * scale
 
   return {vectors:y, E: E}
+}
+
+function pca(vectors, dim) {
+  const eigenVectors = PCA.getEigenVectors(vectors, dim)
+  const adjusted = PCA.computeAdjustedData(vectors, ...eigenVectors.slice(0,dim)).adjustedData
+  const embedded = []
+  for (let i = 0; i < vectors.length; i++) {
+    embedded.push(Array.from({length: dim}, (_,j) => adjusted[j][i]))
+  }
+  return embedded
 }
 
 function eye (n)  { return math.diag(math.ones(n)) }

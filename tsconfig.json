@@ -34,19 +34,37 @@
       "https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm": [
         "./types/d3-array/index.d.ts"
       ],
+      "d3-array": [
+        "./types/d3-array/index.d.ts"
+      ],
       "https://cdn.jsdelivr.net/npm/d3-random@3.0.1/+esm": [
+        "./types/d3-random/index.d.ts"
+      ],
+      "d3-random": [
         "./types/d3-random/index.d.ts"
       ],
       "https://cdn.jsdelivr.net/npm/ml-kmeans@6/+esm": [
         "./types/ml-kmeans/kmeans.d.ts"
       ],
+      "ml-kmeans": [
+        "./types/ml-kmeans/kmeans.d.ts"
+      ],
       "https://cdn.jsdelivr.net/npm/mathjs@11.8.0/+esm": [
+        "./types/mathjs/index.d.ts"
+      ],
+      "mathjs": [
         "./types/mathjs/index.d.ts"
       ],
       "https://cdn.jsdelivr.net/npm/pca-js@1.0.2/+esm": [
         "./types/pca-js/index.d.ts"
       ],
+      "pca-js": [
+        "./types/pca-js/index.d.ts"
+      ],
       "https://cdn.jsdelivr.net/npm/umap-js@1.3.3/+esm":[
+        "./types/umap-js/umap.d.ts"
+      ],
+      "umap-js":[
         "./types/umap-js/umap.d.ts"
       ],
       "https://cdn.jsdelivr.net/npm/tsne-js@1.0.3/+esm":[

@@ -1,7 +1,7 @@
 // NOTES:
 // * It is wise to normalize input to self-organizing maps, we do not do it automatically here.
-import { shuffle as listShuffle, sum, minIndex, mean, deviation } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm';
-import { randomNormal } from 'https://cdn.jsdelivr.net/npm/d3-random@3.0.1/+esm';
+import { shuffle as listShuffle, sum, minIndex, mean, deviation } from 'd3-array';
+import { randomNormal } from 'd3-random';
 import { add, subtract, euclideanDistance, indices } from "./helper.js";
 export class SOM {
     shape;

@@ -1,6 +1,5 @@
-import { default as PCA } from 'https://cdn.jsdelivr.net/npm/pca-js@1.0.2/+esm';
-import { UMAP } from 'https://cdn.jsdelivr.net/npm/umap-js@1.3.3/+esm';
-import { default as TSNE } from 'https://cdn.jsdelivr.net/npm/tsne-js@1.0.3/+esm';
+import * as PCA from 'pca-js';
+import { UMAP } from 'umap-js';
 import { sammon as sammonDR } from "./sammon_js.js";
 export function pca(vectors, dim) {
     const eigenVectors = PCA.getEigenVectors(vectors, dim);
@@ -16,12 +15,13 @@ export function umap(vectors, dim) {
     umap.fit(vectors);
     return umap.getEmbedding();
 }
-export function tsne(vectors, dim) {
-    const model = new TSNE({ dim: dim, perplexity: vectors.length < 10 ? vectors.length - 1 : 10 });
-    model.init({ data: vectors });
-    model.run();
-    return model.getOutput();
-}
+// t-SNE removed due to potential security vulnerability in npm package 
+// export function tsne(vectors: Vector[], dim:number) {
+//   const model = new TSNE({dim: dim, perplexity: vectors.length < 10 ? vectors.length-1 : 10})
+//   model.init({data: vectors})
+//   model.run()
+//   return model.getOutput()
+// }
 export function sammon(vectors, dim) {
     const embedded = sammonDR(vectors, dim);
     return embedded.vectors;

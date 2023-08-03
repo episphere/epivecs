@@ -1,6 +1,7 @@
 import { createPopper } from 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/+esm'
 import jszip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'
-import { clusterEmbed} from "../cluster_embedding/clusterEmbedding.js"
+//import { clusterEmbed} from "../cluster_embedding/clusterEmbedding.js"
+import { clusterEmbed } from '../cluster_embedding/dist/bundle.js'
 import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../processing/processing.js"
 import { hookSelect, hookInput } from "./input.js"
 import { State } from './State.js'
