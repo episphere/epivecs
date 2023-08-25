@@ -7,8 +7,8 @@ export default [
   {
     input: "src/index.js",
     output: {
-      file: `dist/cluster_embedding.min.js`,
-      name: "clusterEmbedding",
+      file: `dist/visualization.min.js`,
+      name: "visualization",
       format: "umd",
     },
     plugins: [
@@ -20,8 +20,8 @@ export default [
   {
     input: "src/index.js",
     output: {
-      file: `dist/cluster_embedding.js`,
-      name: "clusterEmbedding",
+      file: `dist/visualization.js`,
+      name: "visualization",
       format: "esm",
     },
     plugins: [

@@ -1,4 +1,4 @@
-import { mean, deviation, flatGroup } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm';
+import { mean, deviation, flatGroup } from 'd3-array';
 const d3 = {
     mean,
     deviation,

@@ -1,37 +1,25 @@
 {
   "name": "@epivecs/cluster_embedding",
-  "version": "0.1.1",
+  "version": "0.1.11",
   "description": "Methods for performing cluster embedding (clustering with a low dimensional representation)",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "jsdelivr": "dist/cluster_embedding.min.js",
+  "unpkg": "dist/cluster_embedding.min.js",
+  "exports": {
+    "umd": "./dist/cluster_embedding.min.js",
+    "default": "./src/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/episphere/EpiVECS.git"
-  },
-  "type": "module",
-  "keywords": [
-    "clustering",
-    "embedding",
-    "dimensionality",
-    "reduction",
-    "exploratory",
-    "data",
-    "analysis",
-    "data",
-    "science",
-    "data",
-    "processing",
-    "unsupervised",
-    "learning"
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.js"
   ],
   "author": "Lee Mason",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/episphere/EpiVECS/issues"
-  },
-  "homepage": "https://github.com/episphere/EpiVECS#readme",
   "dependencies": {
     "d3-array": "^3.2.4",
     "d3-random": "^3.0.1",

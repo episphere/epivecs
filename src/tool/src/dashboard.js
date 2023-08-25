@@ -1,8 +1,8 @@
 import { PlotState, addDotInteractivity, addLineInteractivity, addGeoInteractivity, addMouseHoverInteraction, addInvisibleDotTooltip }
   from "./dashHelper.js"
-import { positionColorer } from "./positionColorer.js"
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
-import * as Plot from 'https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.9/+esm'
+import { positionColorer } from "../../visualization/dist/visualization.js"
+import * as d3 from "d3"
+import * as Plot from '@observablehq/plot'
 
 export function createDashboard(spatialData, vectorData, resultData, options={}) {
 

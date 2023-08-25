@@ -1,14 +1,13 @@
-import { createPopper } from 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/+esm'
-import jszip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'
-//import { clusterEmbed} from "../cluster_embedding/clusterEmbedding.js"
-import { clusterEmbed } from '../cluster_embedding/dist/bundle.js'
-import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../processing/processing.js"
+import { createPopper } from '@popperjs/core'
+import jszip from 'jszip'
+import { clusterEmbed } from '../../cluster_embedding/dist/cluster_embedding.js'
+import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../../processing/dist/processing.min.js"
 import { hookSelect, hookInput } from "./input.js"
 import { State } from './State.js'
 import { createDashboard } from './dashboard.js'
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm"
-import { toPng } from 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/+esm'
-import download from 'https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/+esm'
+import * as d3 from "d3"
+import { toPng } from 'html-to-image'
+import download from 'downloadjs'
 
 const BASE_URL = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
 

@@ -1,0 +1,27 @@
+{
+  "name": "@epivecs/tool",
+  "version": "0.1.0",
+  "description": "Teh EpiVECS web-tool.",
+  "type": "module",
+  "main": "src/tool.js",
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.js"
+  ],
+  "author": "Lee Mason",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-terser": "^0.4.3",
+    "rollup": "^3.28.1"
+  },
+  "dependencies": {
+    "@observablehq/plot": "^0.6.10",
+    "@popperjs/core": "^2.11.8",
+    "d3": "^7.8.5",
+    "downloadjs": "^1.4.7",
+    "html-to-image": "^1.11.11",
+    "jszip": "^3.10.1"
+  }
+}

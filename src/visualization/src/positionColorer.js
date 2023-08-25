@@ -1,4 +1,4 @@
-import { max, extent } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm';
+import { max, extent } from 'd3-array';
 import { okhsl_to_srgb } from "./colorConvertor.js";
 export function positionColorer(points, l = 0.5, colorSpace = "okhsl") {
     //const center = [mean(points, d => d[0])!, mean(points, d => d[1])!]

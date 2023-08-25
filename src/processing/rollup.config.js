@@ -5,10 +5,10 @@ import commonjs from '@rollup/plugin-commonjs';
 
 export default [
   {
-    input: "src/index.js",
+    input: "src/processing.js",
     output: {
-      file: `dist/cluster_embedding.min.js`,
-      name: "clusterEmbedding",
+      file: `dist/processing.min.js`,
+      name: "tool",
       format: "umd",
     },
     plugins: [
@@ -18,10 +18,10 @@ export default [
     ]
   },
   {
-    input: "src/index.js",
+    input: "src/processing.js",
     output: {
-      file: `dist/cluster_embedding.js`,
-      name: "clusterEmbedding",
+      file: `dist/processing.js`,
+      name: "tool",
       format: "esm",
     },
     plugins: [

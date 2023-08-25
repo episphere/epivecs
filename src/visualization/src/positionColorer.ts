@@ -1,4 +1,4 @@
-import { mean, max, extent } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm'
+import { mean, max, extent } from 'd3-array'
 import { okhsl_to_srgb } from "./colorConvertor.js"
 
 type Vector = number[]

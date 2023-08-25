@@ -1,0 +1,32 @@
+{
+  "name": "@epivecs/processing",
+  "version": "0.1.0",
+  "description": "Methods to help process vector data for cluster embedding.",
+  "type": "module",
+  "main": "src/processing.js",
+  "module": "src/processing.js",
+  "jsdelivr": "dist/processing.min.js",
+  "unpkg": "dist/processing.min.js",
+  "exports": {
+    "umd": "./dist/processing.min.js",
+    "default": "./src/processing.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "dist/**/*.js",
+    "src/**/*.js"
+  ],
+  "author": "Lee Mason",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@rollup/plugin-node-resolve": "^15.2.1",
+    "@rollup/plugin-terser": "^0.4.3",
+    "rollup": "^3.28.1"
+  },
+  "dependencies": {
+    "d3-array": "^3.2.4"
+  }
+}
