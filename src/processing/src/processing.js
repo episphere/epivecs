@@ -1,8 +1,9 @@
-import { mean, deviation, flatGroup } from 'd3-array';
+import { mean, deviation, flatGroup, merge } from 'd3-array';
 const d3 = {
     mean,
     deviation,
-    flatGroup
+    flatGroup,
+    merge
 };
 export function movingAverageSmooth(vector, windowSide = 1, handleEdgeMode = "fill_null") {
     const smoothed = [];
@@ -30,6 +31,17 @@ export function movingAverageSmooth(vector, windowSide = 1, handleEdgeMode = "fi
 }
 export function zNormalize(vectors, mode = "row") {
     let zVectors = vectors.map(d => [...d]);
+    if (mode == "global") {
+        const mean = d3.mean(d3.merge(vectors));
+        const std = d3.deviation(d3.merge(vectors));
+        if (mean != undefined && std != undefined) {
+            for (let i = 0; i < zVectors.length; i++) {
+                for (let j = 0; j < zVectors[i].length; j++) {
+                    zVectors[i][j] = (zVectors[i][j] - mean) / std;
+                }
+            }
+        }
+    }
     if (mode == "column" || mode == "both") {
         for (let j = 0; j < vectors[0].length; j++) {
             let mean = d3.mean(vectors, d => d[j]);

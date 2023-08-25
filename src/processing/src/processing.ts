@@ -1,10 +1,11 @@
 
-import { mean, deviation, flatGroup } from 'https://cdn.jsdelivr.net/npm/d3-array@3.2.3/+esm'
+import { mean, deviation, flatGroup, merge } from 'd3-array'
 
 const d3 = {
   mean,
   deviation,
-  flatGroup
+  flatGroup,
+  merge
 }
 
 type Vector = number[]
@@ -39,9 +40,22 @@ export function movingAverageSmooth(vector:Vector, windowSide=1, handleEdgeMode:
   return smoothed 
 }
 
-export type ZNormModes = "row" | "column" | "both" 
+export type ZNormModes = "row" | "column" | "both" | "global"
 export function zNormalize(vectors: Vector[], mode:ZNormModes = "row") {
   let zVectors = vectors.map(d => [...d])
+
+  if (mode == "global") {
+    const mean = d3.mean(d3.merge(vectors))
+    const std = d3.deviation(d3.merge(vectors))
+
+    if (mean != undefined && std != undefined) {
+      for (let i = 0; i < zVectors.length; i++) {
+        for (let j = 0; j < zVectors[i].length; j++) {
+          zVectors[i][j] = (zVectors[i][j] - mean)/std
+        }
+      }
+    }
+  }
 
   if (mode == "column" || mode == "both") {
     for (let j = 0; j < vectors[0].length; j++) {
