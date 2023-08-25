@@ -1,6 +1,6 @@
 {
   "name": "@epivecs/processing",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Methods to help process vector data for cluster embedding.",
   "type": "module",
   "main": "src/processing.js",
