@@ -19,6 +19,8 @@ export interface ClusterEmbedResult {
   labels: number[],
 }
 
+export { SOM }
+
 export async function selfOrganizingMap(vectors: Vector[], m: number, n: number): Promise<ClusterEmbedResult> {
   const som = new SOM([m,n])
   som.fit(vectors)

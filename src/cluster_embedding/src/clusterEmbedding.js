@@ -7,6 +7,7 @@ import { SOM } from "./SOM.js";
 import { kmeans } from "ml-kmeans";
 import { pca, umap, sammon } from "./dimensionalityReduction.js";
 import { extent } from 'd3-array';
+export { SOM };
 export async function selfOrganizingMap(vectors, m, n) {
     const som = new SOM([m, n]);
     som.fit(vectors);
