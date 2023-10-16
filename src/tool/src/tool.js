@@ -236,7 +236,7 @@ function updateDashboard(width=DEFAULT_SIZE, layout="a") {
 }
 
 function resizeDashboard() {
-  const targetHeight = window.innerHeight * 0.8
+  const targetHeight = window.innerHeight * 0.75
   const currentHeight =  global.plotContainer.getBoundingClientRect().height
   const scaleFactor = targetHeight/currentHeight 
 

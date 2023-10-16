@@ -1,6 +1,6 @@
 {
   "name": "@epivecs/cluster_embedding",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Methods for performing cluster embedding (clustering with a low dimensional representation)",
   "type": "module",
   "main": "src/index.js",
@@ -33,5 +33,16 @@
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
     "rollup": "^3.27.0"
-  }
+  },
+  "keywords": [
+    "unsupervised learning",
+    "exploratory data analysis",
+    "data science",
+    "clustering",
+    "dimensionality reduction",
+    "embedding",
+    "spatiotemporal",
+    "geospatial",
+    "data processing"
+  ]
 }
