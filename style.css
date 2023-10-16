@@ -17,3 +17,7 @@
 label:hover {
   color: slategrey;
 }
+
+.header-links > a:hover {
+  filter: brightness(1.2);
+}
