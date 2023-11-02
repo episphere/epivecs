@@ -1,13 +1,23 @@
-import { createPopper } from '@popperjs/core'
-import jszip from 'jszip'
 import { clusterEmbed } from '../../cluster_embedding/dist/cluster_embedding.js'
-import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../../processing/dist/processing.min.js"
+// import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../../processing/dist/processing.min.js"
+import { zNormalize, movingAverageSmooth, fillMeanColumnMissing, interpolateMissing } from "../../processing/dist/processing.js"
 import { hookSelect, hookInput } from "./input.js"
 import { State } from './State.js'
-import { createDashboard } from './dashboard.js'
+import { createDashboard, previewMap, previewVectors } from './dashboard.js'
+
+import { createPopper } from '@popperjs/core'
+import jszip from 'jszip'
 import * as d3 from "d3"
 import { toPng } from 'html-to-image'
 import download from 'downloadjs'
+
+// import { createPopper } from 'https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/+esm'
+// import jszip from 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm'
+// import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm'
+// import { toPng } from 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/+esm'
+// import download from 'https://cdn.jsdelivr.net/npm/downloadjs@1.4.7/+esm'
+
+
 
 const BASE_URL = location.pathname.substring(0, location.pathname.lastIndexOf("/"))
 
@@ -57,6 +67,8 @@ const RUN_PARAMS = ["spatialDataValue", "vectorDataValue", "spatialFieldValue", 
 "missingValuesValue", "normValue", "smoothingValue", "methodValue", "kValue"]
 const OTHER_PARAMS = ["colorValue", "borderValue", "xDateValue"]
 
+const DEFAULT_SPATIAL = ["counties.geojson", "states.geojson"]
+
 const global = {}
 
 start()
@@ -68,9 +80,7 @@ function changedSpatialDataValue() {
 
   document.getElementById("vector-file-upload").value = null
 
-  if (global.state.spatialDataValue == "USER UPLOAD") {
-    global.state.vectorDataOptions = ["..."] 
-  } else {
+  if (!global.state.spatialDataValue.startsWith("[Upload]")) {
     const resolution = global.state.spatialDataValue == "counties.geojson" ? "county" : "state"
     global.state.vectorDataOptions = global.vectorDataMap.get(resolution).map(d => ({value: d, label: d.split("/")[1]}))
     global.spatialDataZip.file(global.state.spatialDataValue).async("string").then(d => {
@@ -78,20 +88,18 @@ function changedSpatialDataValue() {
     })
 
     global.spatialDataZip.file("states.geojson").async("string").then(d => {
-      global.extraSpatialData = JSON.parse(d)
+      global.state.spatialExtraData = JSON.parse(d)
     })
-
   }
- 
 }
 
 function changedVectorDataValue() {  
   
   global.state.vectorData = null
 
-  if (global.state.vectorDataValue == "USER UPLOAD") {
+  if (global.state.vectorDataValue.startsWith("[Upload]")) {
     const fields = new Set() 
-    for (const row of global.userVectorData) {
+    for (const row of global.state.userVectorData) {
       for (const field of Object.keys(row)) {
         fields.add(field)
       }
@@ -148,7 +156,7 @@ function isNumeric(str) {
 function estimateFields(fields) {
   // This is super basic, perhaps update in future
 
-  const dataSlice = global.userVectorData.slice(0,100)
+  const dataSlice = global.state.userVectorData.slice(0,100)
 
   const ids = new Set(global.state.spatialData.features.map(d => d.id))
   const possibleIdFields = []
@@ -230,7 +238,7 @@ function updateDashboard(width=DEFAULT_SIZE, layout="a") {
       lineXLabel: global.state.xFieldValue,
       lineXValues,
       lineYLabel,
-      extraSpatialData: global.extraSpatialData
+      extraSpatialData: global.state.extraSpatialData
     })
   )
 }
@@ -254,19 +262,21 @@ function resizeDashboard() {
 function changeButtonMode(mode) {
   // ready, pointless, disabled
 
-  const button = document.getElementById("run-button")
-  if (mode == "ready") {
-    button.removeAttribute("disabled")
-    button.className = "btn btn-primary w-100"
-  } else if (mode == "pointless") {
-    
-    button.removeAttribute("disabled")
-    button.className = "btn btn-light w-100"
-  } else {
-    button.className = "btn btn-secondary w-100"
-    button.setAttribute("disabled", "")
-    //button.className = "btn btn-
+  for (const buttonId of ["run-button", "data-run-button"]) {
+    const button = document.getElementById(buttonId)
+    if (mode == "ready") {
+      button.removeAttribute("disabled")
+      button.className = "btn btn-primary w-25"
+    } else if (mode == "pointless") {
+      
+      button.removeAttribute("disabled")
+      button.className = "btn btn-light w-25"
+    } else {
+      button.className = "btn btn-secondary w-25"
+      button.setAttribute("disabled", "")
+    }
   }
+  
 }
 
 function useUrlParams() {
@@ -301,7 +311,7 @@ function hookUrlParams() {
 async function start() {
   toggleLoading(true)
 
-  populateTooltips()
+  //populateTooltips()
 
   global.state = new State()
   global.runButton = document.getElementById("run-button")
@@ -313,14 +323,16 @@ async function start() {
   await loadDefaultData()
 
   hookInputs()
+  hookTabs()
 
   global.state.addListener(changedSpatialDataValue, "spatialDataValue")
   global.state.addListener(changedVectorDataValue, "vectorDataValue")
   global.state.addListener(resultCalculated, "result"),
-  global.state.addListener(dataUpdated, "spatialData", "vectorData")
+  //global.state.addListener(dataUpdated, "spatialData", "vectorData")
   global.state.addListener(updateAndResizeDashboard, "borderValue", "colorValue", "xDateValue")
 
   document.getElementById("spatial-file-upload").addEventListener("change", uploadSpatialFile)
+  document.getElementById("spatial-extra-file-upload").addEventListener("change", uploadExtraSpatialFile)
   document.getElementById("vector-file-upload").addEventListener("change", uploadVectorFile)
 
   global.state.addListener((property) => {
@@ -333,25 +345,100 @@ async function start() {
   // Run when both the vector and spatial data are ready on initial load.
   global.state.addOnceListener(() => {
     if (global.state.vectorData != null && global.state.spatialData != null) {
+      preprocessData()
+      global.state.fireListeners("missingValuesValue")
       run()
       hookUrlParams() 
     }
   }, "spatialData", "vectorData")
-
-  
 
   global.runButton.addEventListener("click", () => {
     toggleLoading(true)
     setTimeout(() => run(), 50)
   })
 
-  global.state.spatialDataOptions = ["counties.geojson", "states.geojson"]
+  document.getElementById("data-run-button").addEventListener("click", () => {
+    toggleLoading(true)
+    setTimeout(() => run(), 50)
+  })
+
+  global.state.spatialDataOptions = DEFAULT_SPATIAL
+  global.state.spatialExtraDataOptions = ["states.geojson"]
+
+  global.state.addListener(() => {
+    if (global.state.spatialData) {
+      // let previewStr = `${global.state.spatialData.features.length} main features.`
+      // if (global.state.spatialExtraData) {
+      //   previewStr = previewStr += `</br>${global.state.spatialExtraData.features.length} extra features.`
+      // }
+      // document.getElementById("map-preview-container").innerHTML = previewStr
+      const mapPreview = previewMap(global.state.spatialData, global.state.spatialExtraData, 480)
+      const element = document.getElementById("map-preview-container")
+      element.innerHTML = ``
+      element.appendChild(mapPreview)
+    }
+  }, "spatialData", "spatialExtraData")
+
+  global.state.addListener(() => {
+
+    if (global.state.vectorDataValue.startsWith("[Upload]")) {
+      // The vector is not in the proprietary vector format, convert
+      global.state.vectorData = rowDataToVectorFormat(global.state.userVectorData, global.state.xFieldValue,
+        global.state.yFieldValue, global.state.spatialFieldValue)
+    }
+
+    if (global.state.vectorData) {
+      const preview = previewVectors(global.state.vectorData)
+      const element = document.getElementById("vector-preview-container")
+      element.innerHTML = ``
+      element.appendChild(preview)
+    }
+  }, "vectorDataValue", "userVectorData", "spatialFieldValue", "xFieldValue", "yFieldValue",)
+
+  global.state.addListener(() => {
+    preprocessData()
+    const preview = previewVectors(global.state.vectorData, true)
+    const element = document.getElementById("preprocess-preview-container")
+    element.innerHTML = ``
+    element.appendChild(preview)
+  }, "missingValuesValue", "normValue", "smoothingValue")
 
   // Shouldn't need to set this here. The hookSelect() function is not set up well to handle default values. Fix later.
   global.state.fireListeners("spatialDataValue")
   global.state.fireListeners("vectorDataValue")
 
   //global.state.vectorDataValue = "county/cdc_covid_cases_county_week.json"
+}
+
+function hookTabs() {
+  const tabs = ["map-file", "vector-data", "processing"].map(tabName => {
+    const navLink = document.getElementById(`nav-${tabName}`)
+    return {
+      tabName,
+      navLink,
+      tabPane: document.getElementById(`tab-${tabName}`),
+      active: navLink.classList.contains("active")
+    }
+  })
+
+  for (const tab of tabs) {
+    tab.navLink.addEventListener("click", e => {
+      if (!tab.active) {
+        tab.navLink.classList.add("active")
+        tab.tabPane.classList.add("show")
+        tab.tabPane.classList.add("active")
+        for (const otherTab of tabs.filter(d => d.tabName != tab.tabName)) {
+          if (otherTab.active) {
+            otherTab.active = false 
+            otherTab.navLink.classList.remove("active")
+            otherTab.tabPane.classList.remove("show")
+            otherTab.tabPane.classList.remove("active")
+          }
+        }
+        tab.active = true
+      } 
+    })
+  }
 }
 
 function toggleLoading(loading) {
@@ -364,23 +451,7 @@ function toggleLoading(loading) {
   }
 }
 
-async function run() {
-  window.location.hash = global.urlParams.toString()
-  global.state.result = null   
-
-  if ((global.state.vectorDataValue == "USER UPLOAD" && !global.userVectorData) ||
-     (global.state.vectorDataValue != "USER UPLOAD" && !global.state.vectorData)) {
-    console.warn("Data not loaded yet!")
-    return 
-  }
-
-
-  if (global.state.vectorDataValue == "USER UPLOAD" && !global.userVectorData.hasOwnProperty("xIndexes")) {
-    // The vector is not in the proprietary vector format, convert
-    global.state.vectorData = rowDataToVectorFormat(global.userVectorData, global.state.xFieldValue,
-       global.state.yFieldValue, global.state.spatialFieldValue)
-  }
-
+function preprocessData() {
   let processedVectors = [...global.state.vectorData.vectors]
   processedVectors = preprocess(processedVectors)
 
@@ -394,8 +465,27 @@ async function run() {
     return keep 
   })
   global.state.vectorData.processedVectors = processedVectors
+}
 
-  clusterEmbed(processedVectors, parseInt(global.state.kValue), global.state.methodValue).then(result => {
+async function run() {
+  window.location.hash = global.urlParams.toString()
+  global.state.result = null   
+
+  if ((global.state.vectorDataValue == "USER UPLOAD" && !global.state.userVectorData) ||
+     (global.state.vectorDataValue != "USER UPLOAD" && !global.state.vectorData)) {
+    console.warn("Data not loaded yet!")
+    return 
+  }
+
+  // if (global.state.vectorDataValue == "USER UPLOAD" && !global.state.userVectorData.hasOwnProperty("xIndexes")) {
+  //   // The vector is not in the proprietary vector format, convert
+  //   global.state.vectorData = rowDataToVectorFormat(global.state.userVectorData, global.state.xFieldValue,
+  //      global.state.yFieldValue, global.state.spatialFieldValue)
+  // }
+  //preprocessData()
+
+
+  clusterEmbed(global.state.vectorData.processedVectors, parseInt(global.state.kValue), global.state.methodValue).then(result => {
     global.state.result = result
   })
 
@@ -429,40 +519,48 @@ function downloadData(data, filename, format="json") {
 }
 
 function uploadSpatialFile(e) {
-  loadFile(e.target.files[0]).then(data => {
-    if (!global.state.spatialDataOptions.includes("USER UPLOAD")) {
-      global.state.spatialDataOptions = [...global.state.spatialDataOptions, "USER UPLOAD"]
-    }
-    global.state.spatialDataValue = "USER UPLOAD"      
+  const file = e.target.files[0]
+  loadFile(file).then(data => {
+    const optionName = "[Upload] " + file.name
+    global.state.spatialDataOptions = [...DEFAULT_SPATIAL, optionName]
+    global.state.spatialDataValue = optionName   
     
     global.state.spatialData = data 
     global.userSpatialData = data 
   })
 
-  if (e.target.files.length > 1) { 
-    loadFile(e.target.files[1]).then(data => {
+  // if (e.target.files.length > 1) { 
+  //   loadFile(e.target.files[1]).then(data => {
+  //     if (data.features.length < global.state.spatialData.features.length) {
+  //       global.extraSpatialData = data 
+  //     } else {
+  //       const extraSpatialData =  global.state.spatialData
+  //       global.state.spatialData = data 
+  //       global.extraSpatialData = extraSpatialData
+  //     }
+  //   })
+  // }
+}
 
-      if (data.features.length < global.state.spatialData.features.length) {
-        global.extraSpatialData = data 
-      } else {
-        const extraSpatialData =  global.state.spatialData
-        global.state.spatialData = data 
-        global.extraSpatialData = extraSpatialData
-      }
-
-    })
-  }
+function uploadExtraSpatialFile(e) {
+  const file = e.target.files[0]
+  loadFile(file).then(data => {
+    const optionName = "[Upload] " + file.name
+    global.state.spatialExtraDataOptions = ["states.geojson", optionName]
+    global.state.spatialExtraDataValue = optionName   
+    global.state.extraSpatialData = data 
+  })
 }
 
 function uploadVectorFile(e) {
-  loadFile(e.target.files[0]).then(data => {
+  const file = e.target.files[0]
+  loadFile(file).then(data => {
          
-    global.userVectorData = data 
-    
-    if (!global.state.vectorDataOptions.includes("USER UPLOAD")) {
-      global.state.vectorDataOptions = ["USER UPLOAD"]
-    }
-    global.state.vectorDataValue = "USER UPLOAD"
+    global.state.userVectorData = data 
+    const optionName = "[Upload] " + file.name
+    const defaultVectorOptions = global.state.vectorDataOptions.filter(d => !d.value.startsWith("[Upload]"))
+    global.state.vectorDataOptions = [...defaultVectorOptions, optionName]
+    global.state.vectorDataValue = optionName
  
   })
 }
@@ -500,6 +598,8 @@ function hookInputs() {
   // Input elements state 
   global.state.defineProperty("spatialDataOptions")
   global.state.defineProperty("spatialDataValue", "counties.geojson")
+  global.state.defineProperty("spatialExtraDataOptions")
+  global.state.defineProperty("spatialExtraDataValue", "states.geojson")
   global.state.defineProperty("vectorDataOptions")
   global.state.defineProperty("vectorDataValue", "county/cdc_covid_cases_county_week.json")
   global.state.defineProperty("spatialFieldOptions")
@@ -528,10 +628,13 @@ function hookInputs() {
   
   // Main state 
   global.state.defineProperty("spatialData")
+  global.state.defineProperty("spatialExtraData")
   global.state.defineProperty("vectorData")
+  global.state.defineProperty("userVectorData")
 
 
   hookSelect("#spatial-data-select", global.state, "spatialDataOptions", "spatialDataValue", format)
+  hookSelect("#spatial-extra-data-select", global.state, "spatialExtraDataOptions", "spatialExtraDataValue", format)
   hookSelect("#vector-data-select", global.state, "vectorDataOptions", "vectorDataValue", format)
   hookSelect("#spatial-field-select", global.state, "spatialFieldOptions", "spatialFieldValue", format)
   hookSelect("#x-field-select", global.state, "xFieldOptions", "xFieldValue", format)
@@ -631,7 +734,7 @@ function rowDataToVectorFormat(rowData, xField, yField, zField) {
     vectors.push(vector)
   }
   
-  return {xIndexes, zIndexes, vectors}
+  return {xField, yField, xIndexes, zIndexes, vectors}
 }
 
 async function loadDefaultData() {

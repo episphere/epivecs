@@ -1,8 +1,11 @@
 import { PlotState, addDotInteractivity, addLineInteractivity, addGeoInteractivity, addMouseHoverInteraction, addInvisibleDotTooltip }
   from "./dashHelper.js"
 import { positionColorer } from "../../visualization/dist/visualization.js"
+
 import * as d3 from "d3"
 import * as Plot from '@observablehq/plot'
+// import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.8.5/+esm'
+// import * as Plot from 'https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.11/+esm'
 
 export function createDashboard(spatialData, vectorData, resultData, options={}) {
 
@@ -266,10 +269,64 @@ export function createDashboard(spatialData, vectorData, resultData, options={})
     divColOther.appendChild(scatterPlot)
     divColOther.appendChild(linePlot)
   }
- 
-
-
-
-  
   return div
 }
+
+export function previewMap(mainSpatialData, extraSpatialData, width) {
+  const marks =  [
+    Plot.geo(mainSpatialData, {
+      stroke: "grey",
+      strokeWidth: .5,
+      fill: "white"
+    })
+  ]
+  
+  if (extraSpatialData) {
+    marks.push(Plot.geo(extraSpatialData, {
+      stroke: "black",
+      strokeWidth: 1,
+      fill: "none"
+    }))
+  }
+
+  return Plot.plot({
+    projection: "albers-usa",
+    width: width,
+    marks
+  })
+}
+
+export function previewVectors(vectorData, processed=false, n=50) {
+  const vectors = processed ? vectorData.processedVectors : vectorData.vectors
+
+  const rows = []
+  vectors.slice(0,n).forEach((vector, j) => {
+    vector.forEach((d,i) => rows.push({
+      [vectorData.xField]: new Date(vectorData.xIndexes[i]),
+      [vectorData.yField]: d,
+      z: j, 
+    }))
+  })
+
+  return Plot.plot({
+    marks: [
+      //Plot.ruleY([0]),
+      Plot.lineY(rows, {x: vectorData.xField, y: vectorData.yField, z: "z"})
+    ]
+  })
+}
+
+// function isProbablyDate(str) {
+//   if (!str || typeof str !== 'string') {
+//     return false
+//   }
+  
+//   const date = new Date(str)
+  
+//   if (isNaN(date.getTime())) {
+//     return false
+//   }
+  
+//   const dateRegex = /^(?:\d{4}[\/-]\d{1,2}[\/-]\d{1,2}|\d{1,2}[\/-]\d{1,2}[\/-]\d{4}|\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4})$/i
+//   return dateRegex.test(str.trim())
+// }

@@ -33,89 +33,161 @@
           </h2>
 
           <div id="data-config-collapse" class="accordion-collapse collapse" aria-labelledby="data-config-heading" data-bs-parent="#data-config-acc">
-            <div class="accordion-body">
-              <div class="container mx-0 my-3">
-                <div class="row">
-                  <div class="col-md-4">
-                    <label id="spatial-data-label">Spatial Data (GeoJSON) <span class="glyphicon glyphicon-info-sign">: </label>
-                  </div>
-                  <div class="col-md-4">
-                    <input id="spatial-file-upload" type="file" class="form-control" id="customFile" multiple />
-                  </div>
-                  <div class="col-md-4">
-                    <select id="spatial-data-select" class="form-select"></select>
-                  </div>
-                </div>
-                <div class="row my-2">
-                  <div class="col-md-4">
-                    <label id="vector-data-label">Vector Data (JSON, CSV): </label>
-                  </div>
-                  <div class="col-md-4">
-                    <input id="vector-file-upload" type="file" class="form-control" id="customFile" />
-                  </div>
-                  <div class="col-md-4">
-                    <select id="vector-data-select" class="form-select"></select>
-                  </div>
-                </div>
-                <div class="row my-2 ps-5">
-                  <div class="col-md-4">
-                    <label id="spatial-id-label">Spatial ID Field: </label>
-                  </div>
-                  <div class="col-md-4">
-                    <select id="spatial-field-select" class="form-select" disabled></select>
-                  </div>
-                </div>
-              
-                <div class="row my-2 ps-5">
-                  <div class="col-md-4">
-                    <label id="x-field-label">x Field: </label>
-                  </div>
-                  <div class="col-md-4">
-                    <select id="x-field-select"  class="form-select" disabled></select>
-                  </div>
-                </div>
-              
-                 <div class="row my-2 ps-5">
-                  <div class="col-md-4">
-                    <label id="y-field-label">y Field: </label>
-                  </div>
-                  <div class="col-md-4">
-                    <select id="y-field-select"  class="form-select" disabled></select>
-                  </div>
-                </div>
-              
-               <div class="row">
-                  <div class="col">
-                    <label id="missing-select-label" for="missing-select" class="form-label">Missing Data</label>
-                    <select id="missing-select" class="form-select"></select>
-                  </div>
-                  <div class="col">
-                    <label id="smooth-select-label" for="smooth-select" class="form-label">Smoothing</label>
-                    <select id="smooth-select" class="form-select"></select>
-                  </div>
-                  <div class="col">
-                    <label id="norm-select-label" for="norm-select" class="form-label">Normalization</label>
-                    <select id="norm-select" class="form-select"></select>
-                  </div>
-                 <div class="col">
-                    <label  id="method-select-label" for="method-select" class="form-label">Method</label>
-                    <select id="method-select" class="form-select"></select>
-                  </div>
-                 <div class="col">
-                    <label id="k-input-label" for="k-input" class="form-label">Num. Clusters</label>
-                    <input id="k-input" class="form-control w-75" type="number" min="1">
-                  </div>
-                </div>
-              
-                <div class="row mt-4">
-                  <div class="col-md-9">
-                    <span id="info-span">...</span>
-                  </div>
-                  <div class="col">
-                    <button id="run-button" type="button" class="btn btn-light w-100" >Run</button>
+            <div class="accordion-body p-2">  
+              <div id="data-wizard-container" class="container">
+                <div class="row mx-3">
+                  <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                      <a class="nav-link active"  id="nav-map-file">Map file</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link"  id="nav-vector-data">Vector data</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" id="nav-processing">Processing</a>
+                    </li>
+                    <!-- <li class="nav-item">
+                      <a class="nav-link"  id="nav-review">Review</a>
+                    </li> -->
+                  </ul>
+  
+                  <div class="tab-content p-4" id="data-config-tabs">
+                    <div class="tab-pane fade show active" id="tab-map-file" role="tabpanel" aria-labelledby="profile-tab">
+                      <div class="row">
+                        <div class="col-6">
+                          <p class="mb-2">Upload a GeoJSON file for the map, or choose one of the default options.</p>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <input id="spatial-file-upload" type="file" class="form-control" id="customFile" />
+                            </div>
+                            <div class="col-md-6">
+                              <select id="spatial-data-select" class="form-select"></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">(Optional) Upload a GeoJSON file for additional map outlines.</p>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <input id="spatial-extra-file-upload" type="file" class="form-control" id="customFile" />
+                            </div>
+                            <div class="col-md-6">
+                              <select id="spatial-extra-data-select" class="form-select"></select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-6">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="card-title">Preview</h5>
+                              <div id="map-preview-container" class="d-flex justify-content-center"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-vector-data" role="tabpanel" aria-labelledby="profile-tab">
+                      
+                      <div class="row">
+                        <div class="col-6">
+                          <p class="mb-2">Upload a file containing your vector data, or if you are using one of the default 
+                            maps you can pick a pre-loaded dataset. Each row should contain an ID field to link it to the map 
+                            (e.g. a FIPS code), a date or numeric field that indicates time, and a numeric field 
+                            for the value you wish to investigate.</p>
+                          <div class="row">
+                            <div class="col-md-6">
+                              <input id="vector-file-upload" type="file" class="form-control" id="customFile" />
+                            </div>
+                            <div class="col-md-6">
+                              <select id="vector-data-select" class="form-select"></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">Choose your ID field.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="spatial-field-select" class="form-select" disabled></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">Choose your time / date field.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="x-field-select" class="form-select" disabled></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">Choose your value field.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="y-field-select" class="form-select" disabled></select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-6">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="card-title">Preview</h5>
+                              <div id="vector-preview-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="tab-pane fade" id="tab-processing" role="tabpanel" aria-labelledby="profile-tab">
+                      
+                      <div class="row">
+                        <div class="col-6">
+                          <p class="mb-2">Configure some basic vector pre-processing steps.</p>
+
+
+                          <p class="mb-2 mt-3">Choose how to handle missing data.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="missing-select" class="form-select" ></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">Choose a time-series smoothing method.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="smooth-select" class="form-select" ></select>
+                            </div>
+                          </div>
+
+                          <p class="mb-2 mt-3">Choose a normalization method.</p>
+                          <div class="row">
+                            <div class="col-md-8">
+                              <select id="norm-select" class="form-select"></select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-6">
+                          <div class="card h-100">
+                            <div class="card-body">
+                              <h5 class="card-title">Preview</h5>
+                              <div class="d-flex justify-content-center" id="preprocess-preview-container"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- <div class="tab-pane fade" id="tab-review" role="tabpanel" aria-labelledby="home-tab">
+                      <div class="row">
+                        <div class="col-12">
+                          <div>The tool is currently showing the default dataset: weekly US COVID-19 case rates on the county level. The default pre-processing options are applied. </br></div>
+                          <div class="mt-2">To explore one of the other pre-loaded datasets, modify the pre-processing options, or use your own data, then use the tabs at the top of this box.</b></div>
+                        </div>
+                      </div>
+                    </div> -->
                   </div>
                 </div>
                 
+                <div class="row d-flex justify-content-end mx-3 mt-2">
+                  <button id="data-run-button" type="button" class="btn btn-light w-25" >Run</button>
+                </div>
               </div>
             </div>
           </div>
@@ -149,9 +221,25 @@
       <div class="row d-flex  justify-content-center" id="loading-container">
         <div id="loading-spinner" class="spinner-border m-5 d-none" role="status"></div>
       </div>
-      
 
       <div class="card p-3">
+        <div class="container mx-0">
+          <div class="d-flex gap-3 align-items-end">
+            <div class="w-25 p-0">
+              <label  id="method-select-label" for="method-select" class="form-label">Cluster Embedding Method</label>
+              <select id="method-select" class="form-select"></select>
+            </div>
+            <span class="px-0">
+              <label id="k-input-label" for="k-input" class="form-label"># Clusters</label>
+              <input id="k-input" class="form-control w-75" type="number" min="1">
+            </span>
+            <button id="run-button" type="button" class="btn btn-light w-25" style="height:fit-content; margin-left: auto;">Run</button>
+          </div>
+        </div>
+      </div>
+      
+
+      <div class="card p-3 d-none">
         <div class="container mx-0">
           <div class="row">
             <div class="col-3">
@@ -175,5 +263,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   <script src="src/tool/dist/tool.min.js" type="module"></script>
+  <!-- <script src="src/tool/src/tool.js" type="module"></script> -->
 </html>
   

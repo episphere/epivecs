@@ -14,10 +14,38 @@
   display: block;
 }
 
+#data-wizard-button {
+  border-radius: .3em;
+  padding: .5em;
+  cursor: pointer;
+  color:#3894fc
+}
+
+#data-wizard-button:hover {
+  color: #93c4fa;
+}
+
+.form-label {
+  font-size: .95em;
+  margin-bottom: .1em;
+}
+
 label:hover {
   color: slategrey;
 }
 
 .header-links > a:hover {
   filter: brightness(1.2);
+}
+
+.tab-content {
+  border-bottom: 1px var(--bs-border-color) solid;
+  border-left: 1px var(--bs-border-color) solid;
+  border-right: 1px var(--bs-border-color) solid;
+  border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.nav-link {
+  cursor: pointer;
 }

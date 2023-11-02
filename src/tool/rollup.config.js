@@ -10,6 +10,7 @@ export default [
       file: `dist/tool.min.js`,
       name: "tool",
       format: "umd",
+      sourcemap: true,
     },
     plugins: [
       terser(),
